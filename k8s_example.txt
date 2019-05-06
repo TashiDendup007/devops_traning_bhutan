@@ -1,0 +1,102 @@
+# Infra:
+kubernetes-master: 172.30.3.106
+kubernetes-node1: 172.30.3.87
+kubernetes-node2: 172.30.3.77
+
+
+# configure on /etc/hosts: (vi /etc/hosts)
+172.30.3.106 kubernetes-master
+172.30.3.87 kubernetes-node1
+172.30.3.77 kubernetes-node2
+
+(check the response, it should resolv name to ip)
+ping kubernetes-master
+ping kubernetes-node1
+ping kubernetes-node2
+
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+
+# Prerequisites: (login by student user)
+whoami 
+Up to date packages (sudo yum update -y)
+All servers need to have the same date and time (ntpd)
+Disable firewall (sudo systemctl status firewalld
+                   sudo systemctl stop firewalld
+                   sudo systemctl disable firewalld)
+
+Disable swap  (sudo swapoff -a)
+Passwordless sudo
+passwordless SSH ( ssh-keygen
+                 ssh-copy-id -i $HOME/.ssh/id_rsa.pub student@kubernetes-master 
+                 ssh-copy-id -i $HOME/.ssh/id_rsa.pub student@kubernetes-node1
+                 ssh-copy-id -i $HOME/.ssh/id_rsa.pub student@kubernetes-node2 
+ 
+- password is student@123
+
+# just try to login without password:
+ssh student@kubernetes-master
+exit
+
+# to remove existing containers
+sudo docker rm -f $(docker ps -a -q)
+
+# For master system
+sudo hostnamectl set-hostname kubernetes-master
+# for node1 system
+sudo hostnamectl set-hostname kubernetes-node1
+# for node2 system
+sudo hostnamectl set-hostname kubernetes-node2
+
+# relogin
+
+# disable swap permanently (sudo vi /etc/fstab)
+
+# Disable SELINUX
+sudo setenforce 0
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+
+# enable br_netfilter
+sudo su -
+modprobe br_netfilter
+echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+cat /proc/sys/net/bridge/bridge-nf-call-iptables
+exit
+
+sudo kubeadm init --apiserver-advertise-address=172.30.3.77 --pod-network-cidr=10.244.0.0/16
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml --validate=false
+
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+kubectl get nodes
+
+# node
+kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
+
+#master
+kubectl get nodes
+
+kubectl -n kube-system get secret | grep kubernetes-dashboard-token | awk '{print "secret/"$1}' | xargs kubectl describe -n kube-system
+
+kubectl create clusterrolebinding kubernetes-dashboard -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
+
+# For mac users to create tunnel:
+ssh -L 8001:localhost:8001 student@<your master ip>
+
+# for windows users:
+use putty to create tunnel
+
+kubectl proxy
+
+http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+
+kubectl create namespace devops
+
+kubectl create deployment nginx --image=nginx
+kubectl create service nodeport nginx --tcp=80:80
+

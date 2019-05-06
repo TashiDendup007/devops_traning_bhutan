@@ -1,0 +1,64 @@
+Summarize:
+
+1. Discuss about SDLC, DevOps, Git
+2. Created SSH key for password less login
+3. Copied id_rsa.pub to GitHub
+4. Cloned repository from ssh url
+   git clone <ssh_url>
+
+
+
+
+vi index.html
+(add something and save the file by :wq)
+git add .
+
+git commit -m "modify index.html file"
+git push
+(check from the browser)
+
+
+(add new file)
+git add .
+git commit -m "added new site.html file"
+git branch develop
+git checkout develop
+git branch
+(see the current branch with *)
+
+git push --set-upstream origin develop
+(check the changes from the browser)
+
+Ex. 1
+Go to Settings > Collaborators
+Add Collaborators
+
+Ex. 2
+Create Oraganization
+Provide name and email for your organization
+Click on People tab
+Add people in your organization
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

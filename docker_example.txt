@@ -1,0 +1,161 @@
+
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install docker-ce docker-ce-cli containerd.io
+
+systemctl start docker
+systemctl enable docker
+docker version
+systemctl status docker
+
+docker pull centos:7
+
+
+
+Signup to https://hub.docker.com/
+search images
+create repositories (public)
+
+
+
+(please run the following command on your centos server)
+
+sysctl -w net.ipv6.conf.all.disable_ipv6=1
+sysctl -w net.ipv6.conf.default.disable_ipv6=1
+
+
+docker build -t myhttpd:latest .
+
+docker run -P -d myhttpd:latest
+
+docker run -it -p 8080:80 centos:latest /bin/bash
+
+
+
+
+(goto repo and fork it your account)
+https://github.com/kapilsthakkar25/webapp-repo
+
+(git clone from your account to centos server)
+git clone https://github.com/kapilsthakkar25/webapp-repo
+
+cd webapp-repo
+docker build -t webapp:latest .
+
+docker run --name demo_website -d -P webapp:latest
+
+
+---------------------------------------------------------
+(Login to mysql container)
+docker exec -it <your containerid> /bin/bash
+
+(to get mysql password read env)
+env
+
+(login to mysql using cli)
+mysql -u root -p
+
+(to see database from cli)
+show databases;
+
+exit;
+-----------------------------------------------------------
+
+mkdir mysql
+cd mysql
+mkdir data
+
+docker run -v "$PWD/data":/var/lib/mysql -P --name demo-mysql-mount -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+
+-----------------------------------------------------------
+(create some schema from GUI or cli)
+CREATE SCHEMA devops;
+CREATE SCHEMA demo;
+------------------------------------------------------------
+
+(check the mounting worked)
+ls data/
+
+(stop and remove the containers and than run new container with same command) 
+
+
+
+https://docs.docker.com/compose/install/
+
+https://github.com/kapildevops/docker-nginx-php-mysql
+
+
+# to export image
+$ docker save wordpress:latest -o /tmp/wordpess.tar
+
+# to import image
+$ docker load -i /tmp/wordpress.tar
+
+# to list images
+$ docker images
+
+
+# to update system:
+yum update -y
+
+# to reboot centos machine:
+init 6
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
